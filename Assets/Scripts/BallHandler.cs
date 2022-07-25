@@ -6,13 +6,16 @@ namespace MobileGameDev.BallHandler
     public class BallHandler : MonoBehaviour
     {
         [SerializeField]
-        private Rigidbody2D _ballRigidbody;
-
+        private GameObject _ballPrefab;
         [SerializeField]
-        private SpringJoint2D _ballSpringJoint;
-
+        private Rigidbody2D _pivotPoint;
         [SerializeField]
         private float _detachDelay;
+        [SerializeField]
+        private float _respawnDelay;
+
+        private Rigidbody2D _ballRigidbody;
+        private SpringJoint2D _ballSpringJoint;
         private Camera _mainCamera;
         private bool _isDragging;
 
@@ -20,6 +23,8 @@ namespace MobileGameDev.BallHandler
         private void Start()
         {
             _mainCamera = Camera.main;
+            SpawnNewBall();
+
         }
 
         private void Update()
@@ -68,6 +73,18 @@ namespace MobileGameDev.BallHandler
         {
             _ballSpringJoint.enabled = false;
             _ballSpringJoint = null;
+
+            Invoke(nameof(SpawnNewBall), _respawnDelay);
+        }
+
+        private void SpawnNewBall()
+        {
+            GameObject ballInstance = Instantiate(_ballPrefab, _pivotPoint.position, Quaternion.identity);
+
+            _ballRigidbody = ballInstance.GetComponent<Rigidbody2D>();
+            _ballSpringJoint = ballInstance.GetComponent<SpringJoint2D>();
+
+            _ballSpringJoint.connectedBody = _pivotPoint;
         }
     }
 }
